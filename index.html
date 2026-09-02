@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <title>섭식 조절곤란 사건 일일 설문</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+      background: #f4f5f7;
+      color: #222;
+    }
+    .wrap {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 24px 20px 60px;
+    }
+    h1 {
+      font-size: 20px;
+      margin: 8px 0 4px;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 22px 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      display: none;
+    }
+    .card.active { display: block; }
+    .q-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+    .q-help {
+      font-size: 13px;
+      color: #777;
+      margin: -8px 0 14px;
+      line-height: 1.5;
+    }
+    label.option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    label.option:has(input:checked) {
+      border-color: #4a7dff;
+      background: #eef3ff;
+    }
+    label.option input { transform: scale(1.15); }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+      margin-top: 6px;
+    }
+    .vas-wrap { margin: 10px 0 6px; }
+    .vas-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #777;
+      margin-bottom: 6px;
+    }
+    input[type="range"] {
+      width: 100%;
+      height: 36px;
+      accent-color: #4a7dff;
+    }
+    .vas-value {
+      text-align: center;
+      font-size: 22px;
+      font-weight: 700;
+      color: #4a7dff;
+      margin-top: 4px;
+    }
+    .nav-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 22px;
+    }
+    button {
+      flex: 1;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .btn-primary { background: #4a7dff; color: #fff; }
+    .btn-primary:disabled { background: #b9c7f2; cursor: not-allowed; }
+    .btn-secondary { background: #eee; color: #444; }
+    .error-msg {
+      color: #d9364f;
+      font-size: 13px;
+      margin-top: 8px;
+      display: none;
+    }
+    #status-screen {
+      text-align: center;
+      padding: 60px 20px;
+      display: none;
+    }
+    #status-screen.active { display: block; }
+    #status-screen p { font-size: 17px; line-height: 1.6; }
+    .download-link {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 14px 26px;
+      background: #d9364f;
+      color: #fff;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <h1>섭식 조절곤란 사건 일일 설문</h1>
+    <div class="subtitle">
+      자극 세션 다음날, 지난 24시간 동안의 섭식 조절곤란 경험에 대해 응답해 주세요.
+    </div>
+
+    <!-- Step 0: 참여자 ID -->
+    <div class="card active" data-step="0">
+      <div class="q-title">참여자 ID를 입력해 주세요.</div>
+      <input type="text" id="participantId" placeholder="예: DGP25-SNU-001" autocomplete="off">
+      <div class="error-msg" id="err-0">참여자 ID를 입력해 주세요.</div>
+      <div class="nav-row">
+        <button class="btn-primary" onclick="goNext(0)">다음</button>
+      </div>
+    </div>
+
+    <!-- Step 1: 스크리닝 -->
+    <div class="card" data-step="1">
+      <div class="q-title">
+        지난 24시간 동안 먹는 도중 또는 먹은 후, 원하는 시점에 멈추기 어렵거나
+        의도한 방식대로 섭취를 조절하기 어렵다고 느낀 적이 있습니까?
+      </div>
+      <div id="screening-options">
+        <label class="option"><input type="radio" name="screening" value="없음">없음</label>
+        <label class="option"><input type="radio" name="screening" value="1회">1회</label>
+        <label class="option"><input type="radio" name="screening" value="2회">2회</label>
+        <label class="option"><input type="radio" name="screening" value="3회 이상">3회 이상</label>
+      </div>
+      <div class="error-msg" id="err-1">응답을 선택해 주세요.</div>
+      <div class="nav-row">
+        <button class="btn-secondary" onclick="goBack(1)">이전</button>
+        <button class="btn-primary" onclick="goNext(1)">다음</button>
+      </div>
+    </div>
+
+    <!-- Step 2: 세부정보 -->
+    <div class="card" data-step="2">
+      <div class="q-title">사건 발생 시각은 언제였습니까?</div>
+      <div class="q-help">2회 이상 경험하신 경우, 그중 가장 조절하기 어려웠던 사건 1건을 기준으로 응답해 주세요.</div>
+      <div id="time-options">
+        <label class="option"><input type="radio" name="eventTime" value="새벽">새벽</label>
+        <label class="option"><input type="radio" name="eventTime" value="오전">오전</label>
+        <label class="option"><input type="radio" name="eventTime" value="오후">오후</label>
+        <label class="option"><input type="radio" name="eventTime" value="야간">야간</label>
+      </div>
+      <div class="error-msg" id="err-2">응답을 선택해 주세요.</div>
+      <div class="nav-row">
+        <button class="btn-secondary" onclick="goBack(2)">이전</button>
+        <button class="btn-primary" onclick="goNext(2)">다음</button>
+      </div>
+    </div>
+
+    <!-- Step 3: 지속시간 -->
+    <div class="card" data-step="3">
+      <div class="q-title">사건의 지속시간은 어느 정도였습니까?</div>
+      <div id="duration-options">
+        <label class="option"><input type="radio" name="duration" value="15분 미만">15분 미만</label>
+        <label class="option"><input type="radio" name="duration" value="15–30분">15–30분</label>
+        <label class="option"><input type="radio" name="duration" value="30–60분">30–60분</label>
+        <label class="option"><input type="radio" name="duration" value="60분 이상">60분 이상</label>
+        <label class="option"><input type="radio" name="duration" value="기억나지 않음">기억나지 않음</label>
+      </div>
+      <div class="error-msg" id="err-3">응답을 선택해 주세요.</div>
+      <div class="nav-row">
+        <button class="btn-secondary" onclick="goBack(3)">이전</button>
+        <button class="btn-primary" onclick="goNext(3)">다음</button>
+      </div>
+    </div>
+
+    <!-- Step 4: 음식 범주 -->
+    <div class="card" data-step="4">
+      <div class="q-title">섭취한 음식 범주는 무엇이었습니까? (해당하는 항목 모두 선택)</div>
+      <div id="food-options">
+        <label class="option"><input type="checkbox" name="food" value="주식류·면류">주식류·면류</label>
+        <label class="option"><input type="checkbox" name="food" value="빵·과자류">빵·과자류</label>
+        <label class="option"><input type="checkbox" name="food" value="단 음식·디저트">단 음식·디저트</label>
+        <label class="option"><input type="checkbox" name="food" value="배달·패스트푸드">배달·패스트푸드</label>
+      </div>
+      <label class="option">
+        <input type="checkbox" id="food-other-check">기타:
+        <input type="text" id="food-other-text" placeholder="직접 입력" style="flex:1; margin-top:0;">
+      </label>
+      <div class="error-msg" id="err-4">한 가지 이상 선택하거나 기타 내용을 입력해 주세요.</div>
+      <div class="nav-row">
+        <button class="btn-secondary" onclick="goBack(4)">이전</button>
+        <button class="btn-primary" onclick="goNext(4)">다음</button>
+      </div>
+    </div>
+
+    <!-- Step 5: 조절곤란 VAS -->
+    <div class="card" data-step="5">
+      <div class="q-title">먹는 행동을 멈추거나 조절하기 어려웠던 정도는 어느 정도였습니까?</div>
+      <div class="vas-wrap">
+        <div class="vas-labels"><span>0 (전혀 어렵지 않았다)</span><span>100 (매우 어려웠다)</span></div>
+        <input type="range" id="controlVas" min="0" max="100" step="1" value="50">
+        <div class="vas-value" id="controlVasValue">50</div>
+      </div>
+      <div class="nav-row">
+        <button class="btn-secondary" onclick="goBack(5)">이전</button>
+        <button class="btn-primary" onclick="goNext(5)">다음</button>
+      </div>
+    </div>
+
+    <!-- Step 6: 충동 강도 VAS -->
+    <div class="card" data-step="6">
+      <div class="q-title">해당 사건 전 먹고 싶은 충동이 강했던 정도는 어느 정도였습니까?</div>
+      <div class="vas-wrap">
+        <div class="vas-labels"><span>0 (전혀 강하지 않았다)</span><span>100 (매우 강했다)</span></div>
+        <input type="range" id="urgeVas" min="0" max="100" step="1" value="50">
+        <div class="vas-value" id="urgeVasValue">50</div>
+      </div>
+      <div class="nav-row">
+        <button class="btn-secondary" onclick="goBack(6)">이전</button>
+        <button class="btn-primary" onclick="submitSurvey()">제출하기</button>
+      </div>
+    </div>
+
+    <!-- 종료(없음 선택 시) -->
+    <div class="card" data-step="end-none">
+      <div class="q-title">응답해 주셔서 감사합니다.</div>
+      <div class="nav-row">
+        <button class="btn-secondary" onclick="goBack('end-none')">이전</button>
+        <button class="btn-primary" onclick="submitSurvey()">제출하기</button>
+      </div>
+    </div>
+
+    <div id="status-screen">
+      <p id="status-text"></p>
+      <div id="status-download"></div>
+    </div>
+  </div>
+
+  <script>
+    // ⚠️ Apps Script 배포 후 생성된 웹 앱 URL(.../exec)로 교체하세요.
+    const GOOGLE_SCRIPT_URL = 'PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
+
+    let history = [0];
+
+    function showStep(step) {
+      document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+      document.querySelector(`.card[data-step="${step}"]`).classList.add('active');
+    }
+
+    function showError(step, show) {
+      const el = document.getElementById(`err-${step}`);
+      if (el) el.style.display = show ? 'block' : 'none';
+    }
+
+    function validateStep(step) {
+      if (step === 0) {
+        const val = document.getElementById('participantId').value.trim();
+        showError(0, !val);
+        return !!val;
+      }
+      if (step === 1) {
+        const val = document.querySelector('input[name="screening"]:checked');
+        showError(1, !val);
+        return !!val;
+      }
+      if (step === 2) {
+        const val = document.querySelector('input[name="eventTime"]:checked');
+        showError(2, !val);
+        return !!val;
+      }
+      if (step === 3) {
+        const val = document.querySelector('input[name="duration"]:checked');
+        showError(3, !val);
+        return !!val;
+      }
+      if (step === 4) {
+        const checked = document.querySelectorAll('input[name="food"]:checked').length > 0;
+        const other = document.getElementById('food-other-check').checked &&
+                      document.getElementById('food-other-text').value.trim();
+        const ok = checked || other;
+        showError(4, !ok);
+        return ok;
+      }
+      return true;
+    }
+
+    function goNext(step) {
+      if (!validateStep(step)) return;
+
+      if (step === 1) {
+        const screening = document.querySelector('input[name="screening"]:checked').value;
+        history.push(1);
+        if (screening === '없음') {
+          history.push('end-none');
+          showStep('end-none');
+        } else {
+          history.push(2);
+          showStep(2);
+        }
+        return;
+      }
+
+      const next = typeof step === 'number' ? step + 1 : step;
+      history.push(next);
+      showStep(next);
+    }
+
+    function goBack(step) {
+      history.pop();
+      const prev = history[history.length - 1];
+      showStep(prev);
+    }
+
+    const controlSlider = document.getElementById('controlVas');
+    const urgeSlider = document.getElementById('urgeVas');
+    controlSlider.addEventListener('input', () => {
+      document.getElementById('controlVasValue').textContent = controlSlider.value;
+    });
+    urgeSlider.addEventListener('input', () => {
+      document.getElementById('urgeVasValue').textContent = urgeSlider.value;
+    });
+
+    function collectData() {
+      const screening = document.querySelector('input[name="screening"]:checked')?.value || '없음';
+      const data = {
+        participantId: document.getElementById('participantId').value.trim(),
+        responseDate: new Date().toISOString().slice(0, 10),
+        screening: screening
+      };
+
+      if (screening !== '없음') {
+        const foods = Array.from(document.querySelectorAll('input[name="food"]:checked')).map(el => el.value);
+        const otherText = document.getElementById('food-other-text').value.trim();
+        if (document.getElementById('food-other-check').checked && otherText) {
+          foods.push('기타: ' + otherText);
+        }
+        data.eventTime = document.querySelector('input[name="eventTime"]:checked')?.value || '';
+        data.duration = document.querySelector('input[name="duration"]:checked')?.value || '';
+        data.foodCategories = foods.join(', ');
+        data.controlVas = Number(controlSlider.value);
+        data.urgeVas = Number(urgeSlider.value);
+      }
+      return data;
+    }
+
+    function submitSurvey() {
+      const data = collectData();
+
+      document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+      const statusScreen = document.getElementById('status-screen');
+      statusScreen.classList.add('active');
+      document.getElementById('status-text').textContent = '전송 중입니다...';
+
+      try {
+        localStorage.setItem(
+          `loc_eating_backup_${data.participantId}_${Date.now()}`,
+          JSON.stringify(data)
+        );
+      } catch (e) { /* localStorage 사용 불가 시 무시 */ }
+
+      fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(data)
+      })
+        .then(() => {
+          document.getElementById('status-text').innerHTML =
+            '응답이 정상적으로 제출되었습니다.<br>감사합니다.';
+        })
+        .catch(() => {
+          const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          document.getElementById('status-text').innerHTML =
+            '네트워크 오류로 전송에 실패했습니다.<br>아래 버튼으로 백업 파일을 저장한 뒤 연구자에게 전달해 주세요.';
+          document.getElementById('status-download').innerHTML =
+            `<a class="download-link" href="${url}" download="loc_eating_${data.participantId}_${Date.now()}.json">⬇ 백업 파일 저장</a>`;
+        });
+    }
+  </script>
+</body>
+
+</html>
